@@ -82,7 +82,6 @@ func main() {
 		time.Sleep(time.Duration(delay))
 
 		logger.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
-		fmt.Println("Rate limit reached, waiting  " + strconv.Itoa(retry) + "s")
 	}
 
 	// Marshal json data into struct
@@ -102,19 +101,19 @@ func main() {
 
 	// Determine status
 	if d.RenewAuto {
-		exit_string += "OK - Autorenewal enabled. Expires "
+		exit_string += "OK - [" + *domain + "] Autorenewal enabled. Expires "
 	} else {
 		if diff < 0 {
 			exit_status = 2
-			exit_string += "CRITICAL - Expired "
+			exit_string += "CRITICAL - [" + *domain + "] Expired "
 		} else if diff < warning {
 			exit_status = 2
-			exit_string += "CRITICAL - Expires "
+			exit_string += "CRITICAL - [" + *domain + "] Expires "
 		} else if diff < critical {
 			exit_status = 1
-			exit_string += "WARNING - Expires "
+			exit_string += "WARNING - [" + *domain + "] Expires "
 		} else {
-			exit_string += "OK - Expires "
+			exit_string += "OK - [" + *domain + "] Expires "
 		}
 	}
 	exit_string += d.Expires.String() + ", in " + diff.String()
