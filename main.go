@@ -25,8 +25,8 @@ func main() {
 	key := flag.String("key", "", "API Key")
 	secret := flag.String("secret", "", "API Secret")
 
-	warn := flag.Int64("warn", 15, "days until warning (default: 15)")
-	crit := flag.Int64("crit", 7, "days until critical (default: 7)")
+	warn := flag.Int64("warn", 15, "days until warning")
+	crit := flag.Int64("crit", 7, "days until critical")
 
 	// Create warn and crit durations
 	warning := time.Duration(int64(time.Hour) * int64(24**warn))
