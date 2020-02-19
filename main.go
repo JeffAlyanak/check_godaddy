@@ -1,21 +1,22 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/jeffalyanak/godaddy-check/logger"
 	"github.com/jeffalyanak/godaddy-check/model"
 )
 
 func main() {
+	logger := logger.Get()
+
 	// Struct for holding data
 	var d model.GoDaddyDomain
 
@@ -34,14 +35,17 @@ func main() {
 	flag.Parse()
 
 	if *domain == "" {
+		logger.Println("No domain provided")
 		fmt.Println("No domain provided")
 		os.Exit(3)
 	}
 	if *key == "" {
+		logger.Println("No API key provided")
 		fmt.Println("No API key provided")
 		os.Exit(3)
 	}
 	if *secret == "" {
+		logger.Println("No API secret provided")
 		fmt.Println("No API secret provided")
 		os.Exit(3)
 	}
@@ -58,6 +62,7 @@ func main() {
 	// Make Request
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Println("Error!")
 		fmt.Println("Error!")
 		os.Exit(3)
 	}
@@ -67,19 +72,25 @@ func main() {
 	if resp.StatusCode == 429 {
 		retry, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
 		if err != nil {
+			logger.Println(err)
 			fmt.Println(err)
 			os.Exit(3)
 		}
 
-		WriteRetryAfter(retry)
-	}
+		// Wait for a bit
+		delay := time.Duration(int64(time.Second)*int64(retry) + 1)
+		time.Sleep(time.Duration(delay))
 
-	print(ReadRetryAfter())
+		logger.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
+		fmt.Println("Rate limit reached, waiting  " + strconv.Itoa(retry) + "s")
+	}
 
 	// Marshal json data into struct
 	body, err := ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(body, &d); err != nil {
-		log.Fatalf("Parse response failed, reason: %v \n", err)
+		logger.Println(err)
+		fmt.Println(err)
+		os.Exit(3)
 	}
 
 	// Differential between now and expiry
@@ -89,6 +100,7 @@ func main() {
 	exit_status := 0
 	exit_string := ""
 
+	// Determine status
 	if d.RenewAuto {
 		exit_string += "OK - Autorenewal enabled. Expires "
 	} else {
@@ -107,46 +119,8 @@ func main() {
 	}
 	exit_string += d.Expires.String() + ", in " + diff.String()
 
+	// Log status and return
+	logger.Println(exit_string)
 	fmt.Println(exit_string)
 	os.Exit(exit_status)
-}
-
-func WriteRetryAfter(retry int) {
-	f, err := os.Create("retry_after")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(3)
-	}
-
-	r := time.Duration(int64(time.Second) * int64(retry))
-
-	_, err = f.WriteString(time.Now().Add(r).String())
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		os.Exit(3)
-	}
-}
-
-func ReadRetryAfter() string {
-	str := ""
-
-	f, err := os.Open("retry_after")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(3)
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		str = scanner.Text()
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
-		os.Exit(3)
-	}
-
-	return str
 }
