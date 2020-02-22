@@ -1,7 +1,7 @@
-[![GitHub version](https://img.shields.io/github/release/jeffalyanak/check_godaddy.svg)](https://github.com/jeffalyanak/check_godaddy/releases/latest)
-[![License](https://img.shields.io/github/license/jeffalyanak/check_godaddy.svg)](https://github.com/jeffalyanak/check_godaddy/blob/master/LICENSE.txt)
-[![Donate](https://img.shields.io/badge/donate--green.svg)](https://jeff.alyanak.ca/donate)
-[![Matrix](https://img.shields.io/matrix/check_godaddy:social.rights.ninja.svg)](https://matrix.to/#/#check_godaddy:social.rights.ninja)
+[![GitHub version](https://img.shields.io/github/v/release/jeffalyanak/check_godaddy)](https://github.com/jeffalyanak/check_godaddy/releases/latest)
+[![License](https://img.shields.io/github/license/jeffalyanak/check_godaddy)](https://github.com/jeffalyanak/check_godaddy/blob/master/LICENSE)
+[![Donate](https://img.shields.io/badge/donate--green)](https://jeff.alyanak.ca/donate)
+[![Matrix](https://img.shields.io/badge/chat--green)](https://matrix.to/#/#check_godaddy:social.rights.ninja)
 
 # GoDaddy Domain Expiry Checker
 
@@ -16,18 +16,26 @@ User configurable `warning` and `critical` levels
 
 ## Usage
 
+Requires [GoDaddy API keys](https://developer.godaddy.com/).
+
 ```bash
-Usage of ./godaddy-check:
-  -crit int
-        days until critical (default 7)
+Usage of check_godaddy:
   -domain string
         domain to search
+  -warn int
+        days until warning (default 15)
+  -crit int
+        days until critical (default 7)
   -key string
         API Key
   -secret string
         API Secret
-  -warn int
-        days until warning (default 15)
+```
+
+Example:
+
+```bash
+check_godaddy -domain example.com -warn 30 -crit 14 -key 1234567890 -secret 123456
 ```
 
 ## License
