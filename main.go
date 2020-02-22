@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jeffalyanak/godaddy-check/logger"
-	"github.com/jeffalyanak/godaddy-check/model"
+	"github.com/jeffalyanak/check_godaddy/logger"
+	"github.com/jeffalyanak/check_godaddy/model"
 )
 
 func main() {
