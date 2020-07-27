@@ -41,3 +41,9 @@ check_godaddy -domain example.com -warn 30 -crit 14 -key 1234567890 -secret 1234
 ## License
 
 GoDaddy Domain Expiry Checker is licensed under the terms of the GNU General Public License Version 3.
+
+## Changelog
+| Release | Notes |
+|--------------------|--------------------------|
+| v1.05 | Added NRPE PerfData output: `expiry` provides unix time for cert expiration and `autorenew` provides bool for auto-renewal status. |
+| v1.00 | Initial release. |
