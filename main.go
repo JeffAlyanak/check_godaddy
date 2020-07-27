@@ -116,7 +116,7 @@ func main() {
 			exit_string += "OK - [" + *domain + "] Expires "
 		}
 	}
-	exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String()
+	exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
 
 	logger.Println(exit_string)
 	fmt.Println(exit_string)
@@ -128,6 +128,13 @@ func durationDays(diff time.Duration) string {
 		return durationHours(diff)
 	}
 	return strconv.FormatFloat(float64(diff)/86400000000000, 'f', 0, 64) + " day(s)"
+}
+
+func boolToString(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
 }
 
 func durationHours(diff time.Duration) string {
