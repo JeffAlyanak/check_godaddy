@@ -2,7 +2,10 @@ package model
 
 import "time"
 
+// GoDaddyDomain struct holds api return values
 type GoDaddyDomain struct {
+	Code     string `json:"code"`
+	Message  string `json:"message"`
 	AuthCode string `json:"authCode"`
 	Contact  struct {
 		AddressMailing struct {

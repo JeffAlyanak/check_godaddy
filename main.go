@@ -86,6 +86,7 @@ func main() {
 
 	// Marshal json data into struct
 	body, err := ioutil.ReadAll(resp.Body)
+
 	if err := json.Unmarshal(body, &d); err != nil {
 		logger.Println(err)
 		fmt.Println(err)
@@ -99,25 +100,31 @@ func main() {
 	exit_status := 0
 	exit_string := ""
 
-	// Determine status
-	if d.RenewAuto {
-		exit_string += "OK - [" + *domain + "] Autorenewal enabled. Expires "
+	if d.Code == "ERROR_INTERNAL" { // Check for internal errors on Godaddy's side.
+		exit_status = 3
+		exit_string = "GODADDY ERROR_INTERNAL - " + d.Message
+	} else if d.Expires == time.Unix(0, 0) { // Check if the expiry is otherwise not found.
+		exit_status = 3
+		exit_string = "UNKNOWN - No expiry time returned by GoDaddy."
 	} else {
-		if diff < 0 {
-			exit_status = 2
-			exit_string += "CRITICAL - [" + *domain + "] Expired "
-		} else if diff < warning {
-			exit_status = 2
-			exit_string += "CRITICAL - [" + *domain + "] Expires "
-		} else if diff < critical {
-			exit_status = 1
-			exit_string += "WARNING - [" + *domain + "] Expires "
-		} else {
-			exit_string += "OK - [" + *domain + "] Expires "
+		if d.RenewAuto { // Check if autorenewal is enabled.
+			exit_string += "OK - [" + *domain + "] Autorenewal enabled. Expires "
+		} else { // Check if the expiration falls within the warning or critical levels
+			if diff < 0 {
+				exit_status = 2
+				exit_string += "CRITICAL - [" + *domain + "] Expired "
+			} else if diff < warning {
+				exit_status = 2
+				exit_string += "CRITICAL - [" + *domain + "] Expires "
+			} else if diff < critical {
+				exit_status = 1
+				exit_string += "WARNING - [" + *domain + "] Expires "
+			} else {
+				exit_string += "OK - [" + *domain + "] Expires "
+			}
 		}
+		exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
 	}
-	exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
-
 	logger.Println(exit_string)
 	fmt.Println(exit_string)
 	os.Exit(exit_status)
