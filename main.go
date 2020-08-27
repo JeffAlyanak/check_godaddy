@@ -36,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	if *logging {
-		log := logger.Get()
+		log = logger.Get()
 	}
 
 	if *domain == "" {
@@ -142,7 +142,6 @@ func main() {
 				exit_string += "OK - [" + *domain + "] Expires "
 			}
 		}
-		fmt.Println(d.Expires.Unix())
 		exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
 	}
 	if *logging {
