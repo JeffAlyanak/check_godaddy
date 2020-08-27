@@ -21,6 +21,7 @@ func main() {
 	var d model.GoDaddyDomain
 
 	// Handle cli arguments
+	logging := flag.Bool("v", false, "enable logging")
 	domain := flag.String("domain", "", "domain to search")
 	key := flag.String("key", "", "API Key")
 	secret := flag.String("secret", "", "API Secret")
@@ -35,17 +36,23 @@ func main() {
 	flag.Parse()
 
 	if *domain == "" {
-		logger.Println("No domain provided")
+		if *logging {
+			logger.Println("No domain provided")
+		}
 		fmt.Println("No domain provided")
 		os.Exit(3)
 	}
 	if *key == "" {
-		logger.Println("No API key provided")
+		if *logging {
+			logger.Println("No API key provided")
+		}
 		fmt.Println("No API key provided")
 		os.Exit(3)
 	}
 	if *secret == "" {
-		logger.Println("No API secret provided")
+		if *logging {
+			logger.Println("No API secret provided")
+		}
 		fmt.Println("No API secret provided")
 		os.Exit(3)
 	}
@@ -62,7 +69,9 @@ func main() {
 	// Make Request
 	resp, err := client.Do(req)
 	if err != nil {
-		logger.Println("Error!")
+		if *logging {
+			logger.Println("Error!")
+		}
 		fmt.Println("Error!")
 		os.Exit(3)
 	}
@@ -72,7 +81,9 @@ func main() {
 	if resp.StatusCode == 429 {
 		retry, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
 		if err != nil {
-			logger.Println(err)
+			if *logging {
+				logger.Println(err)
+			}
 			fmt.Println(err)
 			os.Exit(3)
 		}
@@ -81,14 +92,18 @@ func main() {
 		delay := time.Duration(int64(time.Second)*int64(retry) + 1)
 		time.Sleep(time.Duration(delay))
 
-		logger.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
+		if *logging {
+			logger.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
+		}
 	}
 
 	// Marshal json data into struct
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err := json.Unmarshal(body, &d); err != nil {
-		logger.Println(err)
+		if *logging {
+			logger.Println(err)
+		}
 		fmt.Println(err)
 		os.Exit(3)
 	}
@@ -123,9 +138,12 @@ func main() {
 				exit_string += "OK - [" + *domain + "] Expires "
 			}
 		}
+		fmt.Println(d.Expires.Unix())
 		exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
 	}
-	logger.Println(exit_string)
+	if *logging {
+		logger.Println(exit_string)
+	}
 	fmt.Println(exit_string)
 	os.Exit(exit_status)
 }
