@@ -45,5 +45,6 @@ GoDaddy Domain Expiry Checker is licensed under the terms of the GNU General Pub
 ## Changelog
 | Release | Notes |
 |--------------------|--------------------------|
+| v1.06 | Now handles internal server errors by returning 3 to the shell and outputting the error message from GoDaddy. |
 | v1.05 | Added NRPE PerfData output: `expiry` provides unix time for cert expiration and `autorenew` provides bool for auto-renewal status. |
 | v1.00 | Initial release. |
