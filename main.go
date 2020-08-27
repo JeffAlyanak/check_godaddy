@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	logger := logger.Get()
+	var log *logger.Logger
 
 	// Struct for holding data
 	var d model.GoDaddyDomain
@@ -35,23 +35,27 @@ func main() {
 
 	flag.Parse()
 
+	if *logging {
+		log := logger.Get()
+	}
+
 	if *domain == "" {
 		if *logging {
-			logger.Println("No domain provided")
+			log.Println("No domain provided")
 		}
 		fmt.Println("No domain provided")
 		os.Exit(3)
 	}
 	if *key == "" {
 		if *logging {
-			logger.Println("No API key provided")
+			log.Println("No API key provided")
 		}
 		fmt.Println("No API key provided")
 		os.Exit(3)
 	}
 	if *secret == "" {
 		if *logging {
-			logger.Println("No API secret provided")
+			log.Println("No API secret provided")
 		}
 		fmt.Println("No API secret provided")
 		os.Exit(3)
@@ -70,7 +74,7 @@ func main() {
 	resp, err := client.Do(req)
 	if err != nil {
 		if *logging {
-			logger.Println("Error!")
+			log.Println("Error!")
 		}
 		fmt.Println("Error!")
 		os.Exit(3)
@@ -82,7 +86,7 @@ func main() {
 		retry, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
 		if err != nil {
 			if *logging {
-				logger.Println(err)
+				log.Println(err)
 			}
 			fmt.Println(err)
 			os.Exit(3)
@@ -93,7 +97,7 @@ func main() {
 		time.Sleep(time.Duration(delay))
 
 		if *logging {
-			logger.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
+			log.Println("Rate limit reached, waiting " + strconv.Itoa(retry) + "s")
 		}
 	}
 
@@ -102,7 +106,7 @@ func main() {
 
 	if err := json.Unmarshal(body, &d); err != nil {
 		if *logging {
-			logger.Println(err)
+			log.Println(err)
 		}
 		fmt.Println(err)
 		os.Exit(3)
@@ -142,7 +146,7 @@ func main() {
 		exit_string += "in " + durationDays(diff) + ", at " + d.Expires.String() + " | expiry=" + strconv.FormatInt(d.Expires.Unix(), 10) + ", autorenew=" + boolToString(d.RenewAuto)
 	}
 	if *logging {
-		logger.Println(exit_string)
+		log.Println(exit_string)
 	}
 	fmt.Println(exit_string)
 	os.Exit(exit_status)
